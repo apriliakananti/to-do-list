@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-Do List App School Task</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6C63FF;
+      --primary-light: #8A85FF;
+      --secondary: #FF6584;
+      --accent: #36D1DC;
+      --dark: #2A2D43;
+      --light: #F7F9FC;
+      --gray: #A0A4B8;
+      --success: #4CAF50;
+      --warning: #FF9800;
+      --danger: #F44336;
+      --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: var(--dark);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background-color: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+      margin-top: 40px;
+      transition: var(--transition);
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .circle-deco {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent) 100%);
+      top: -100px;
+      right: -100px;
+      opacity: 0.1;
+      z-index: 0;
+    }
+
+    .circle-deco::after {
+      content: '';
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--secondary) 0%, var(--warning) 100%);
+      bottom: -50px;
+      left: -50px;
+      opacity: 0.1;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--dark);
+      font-weight: 700;
+      font-size: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 2px;
+    }
+
+    .form-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    input, button {
+      padding: 15px;
+      border-radius: 10px;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    input {
+      background-color: var(--light);
+      border: 2px solid transparent;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: white;
+      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+    }
+
+    #saveBtn {
+      grid-column: span 2;
+      background: linear-gradient(to right, var(--primary), var(--primary-light));
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #saveBtn:hover {
+      background: linear-gradient(to right, var(--primary-light), var(--primary));
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(108, 99, 255, 0.4);
+    }
+
+    #saveBtn:active {
+      transform: translateY(0);
+    }
+
+    .task-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      background-color: var(--light);
+      padding: 15px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--gray);
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filter-btn {
+      flex: 1;
+      padding: 10px;
+      background-color: var(--light);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+
+    .filter-btn.active {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .filter-btn:hover:not(.active) {
+      background-color: #e6e9f5;
+    }
+
+    #taskList {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .task-item {
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+      border-left: 5px solid var(--primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .task-item:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-item.overdue {
+      border-left-color: var(--danger);
+    }
+
+    .task-item.completed {
+      border-left-color: var(--success);
+      opacity: 0.8;
+    }
+
+    .task-content {
+      flex: 1;
+    }
+
+    .task-subject {
+      font-size: 12px;
+      color: var(--gray);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .task-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--dark);
+    }
+
+    .task-due {
+      font-size: 12px;
+      color: var(--gray);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .task-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .task-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: var(--transition);
+      border: none;
+      color: white;
+      font-size: 14px;
+    }
+
+    .complete-btn {
+      background-color: var(--success);
+    }
+
+    .delete-btn {
+      background-color: var(--danger);
+    }
+
+    .task-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray);
+    }
+
+    .empty-state i {
+      font-size: 50px;
+      margin-bottom: 15px;
+      color: var(--light);
+    }
+
+    .empty-state p {
+      font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .form-group {
+        grid-template-columns: 1fr;
+      }
+      
+      #saveBtn {
+        grid-column: span 1;
+      }
+      
+      .task-stats {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+
+    /* Animasi untuk tugas baru */
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .task-item.new {
+      animation: slideIn 0.5s ease forwards;
+    }
+
+    /* Animasi untuk tugas yang dihapus */
+    @keyframes slideOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+    }
+
+    .task-item.removing {
+      animation: slideOut 0.3s ease forwards;
+    }
+
+    /* Animasi untuk tugas yang selesai */
+    .task-item.completed .task-title {
+      text-decoration: line-through;
+      color: var(--gray);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="circle-deco"></div>
+    <h1>To-Do List App School Task</h1>
+    
+    <div class="form-group">
+      <input type="text" id="subject" placeholder="Mata Pelajaran ..." />
+      <input type="text" id="title" placeholder="Judul Tugas ..." />
+      <input type="date" id="dueDate" />
+      <button id="saveBtn">
+        <i class="fas fa-plus"></i> Simpan Tugas
+      </button>
+    </div>
+    
+    <div class="task-stats">
+      <div class="stat-item">
+        <span class="stat-value" id="totalTasks">0</span>
+        <span class="stat-label">Total Tugas</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="completedTasks">0</span>
+        <span class="stat-label">Selesai</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="pendingTasks">0</span>
+        <span class="stat-label">Belum Selesai</span>
+      </div>
+    </div>
+    
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-filter="all">Semua Tugas</button>
+      <button class="filter-btn" data-filter="pending">Belum Selesai</button>
+      <button class="filter-btn" data-filter="completed">Selesai</button>
+    </div>
+    
+    <div id="taskList">
+      <div class="empty-state">
+        <i class="fas fa-clipboard-list"></i>
+        <p>Belum ada tugas. Tambahkan tugas baru!</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Data tugas
+    let tasks = JSON.parse(localStorage.getItem('schoolTasks')) || [];
+    let currentFilter = 'all';
+
+    // Elemen DOM
+    const taskList = document.getElementById('taskList');
+    const subjectInput = document.getElementById('subject');
+    const titleInput = document.getElementById('title');
+    const dueDateInput = document.getElementById('dueDate');
+    const saveBtn = document.getElementById('saveBtn');
+    const totalTasksEl = document.getElementById('totalTasks');
+    const completedTasksEl = document.getElementById('completedTasks');
+    const pendingTasksEl = document.getElementById('pendingTasks');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+
+    // Fungsi untuk menyimpan tugas ke localStorage
+    function saveTasks() {
+      localStorage.setItem('schoolTasks', JSON.stringify(tasks));
+      updateStats();
+    }
+
+    // Fungsi untuk memperbarui statistik
+    function updateStats() {
+      const totalTasks = tasks.length;
+      const completedTasks = tasks.filter(task => task.completed).length;
+      const pendingTasks = totalTasks - completedTasks;
+      
+      totalTasksEl.textContent = totalTasks;
+      completedTasksEl.textContent = completedTasks;
+      pendingTasksEl.textContent = pendingTasks;
+    }
+
+    // Fungsi untuk menambahkan tugas baru
+    function tambahTugas() {
+      const subject = subjectInput.value.trim();
+      const title = titleInput.value.trim();
+      const dueDate = dueDateInput.value;
+      
+      if (!subject || !title || !dueDate) {
+        alert('Harap isi semua field!');
+        return;
+      }
+      
+      const newTask = {
+        id: Date.now(),
+        subject,
+        title,
+        dueDate,
+        completed: false,
+        createdAt: new Date().toISOString()
+      };
+      
+      tasks.unshift(newTask);
+      saveTasks();
+      renderTasks();
+      
+      // Reset form
+      subjectInput.value = '';
+      titleInput.value = '';
+      dueDateInput.value = '';
+      
+      // Fokus kembali ke input subject
+      subjectInput.focus();
+    }
+
+    // Fungsi untuk menandai tugas sebagai selesai
+    function toggleComplete(taskId) {
+      const taskIndex = tasks.findIndex(task => task.id === taskId);
+      if (taskIndex !== -1) {
+        tasks[taskIndex].completed = !tasks[taskIndex].completed;
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    // Fungsi untuk menghapus tugas
+    function hapusTugas(taskId) {
+      const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
+      if (taskElement) {
+        taskElement.classList.add('removing');
+        setTimeout(() => {
+          tasks = tasks.filter(task => task.id !== taskId);
+          saveTasks();
+          renderTasks();
+        }, 300);
+      }
+    }
+
+    // Fungsi untuk merender daftar tugas
+    function renderTasks() {
+      const filteredTasks = tasks.filter(task => {
+        if (currentFilter === 'completed') return task.completed;
+        if (currentFilter === 'pending') return !task.completed;
+        return true;
+      });
+      
+      if (filteredTasks.length === 0) {
+        taskList.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-clipboard-list"></i>
+            <p>Tidak ada tugas yang sesuai dengan filter.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      taskList.innerHTML = filteredTasks.map(task => {
+        const dueDate = new Date(task.dueDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        let dueDateClass = '';
+        if (task.completed) {
+          dueDateClass = 'completed';
+        } else if (dueDate < today) {
+          dueDateClass = 'overdue';
+        }
+        
+        return `
+          <div class="task-item ${dueDateClass} ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
+            <div class="task-content">
+              <div class="task-subject">${task.subject}</div>
+              <div class="task-title">${task.title}</div>
+              <div class="task-due">
+                <i class="far fa-calendar-alt"></i>
+                ${dueDate.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                ${dueDate < today && !task.completed ? '<span style="color: var(--danger); margin-left: 10px;">(Terlambat)</span>' : ''}
+              </div>
+            </div>
+            <div class="task-actions">
+              <button class="task-btn complete-btn" onclick="toggleComplete(${task.id})">
+                <i class="fas ${task.completed ? 'fa-undo' : 'fa-check'}"></i>
+              </button>
+              <button class="task-btn delete-btn" onclick="hapusTugas(${task.id})">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Fungsi untuk mengatur filter
+    function setFilter(filter) {
+      currentFilter = filter;
+      filterButtons.forEach(btn => {
+        if (btn.dataset.filter === filter) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      renderTasks();
+    }
+
+    // Event Listeners
+    saveBtn.addEventListener('click', tambahTugas);
+
+    // Tambahkan event listener untuk tombol Enter
+    [subjectInput, titleInput, dueDateInput].forEach(input => {
+      input.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          tambahTugas();
+        }
+      });
+    });
+
+    // Event listener untuk filter buttons
+    filterButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        setFilter(this.dataset.filter);
+      });
+    });
+
+    // Inisialisasi
+    updateStats();
+    renderTasks();
+  </script>
+</body>
+</html>
